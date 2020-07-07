@@ -19,11 +19,12 @@ class TransactionCard extends StatelessWidget {
               margin: EdgeInsets.symmetric(vertical: 9.0, horizontal: 4.0),
               padding: EdgeInsets.all(10.0),
               decoration: BoxDecoration(
-                  border: Border.all(color: Colors.green, width: 3.0)),
+                  border: Border.all(
+                      color: Theme.of(context).primaryColorLight, width: 3.0)),
               child: Text(
-                '\$$amount',
+                '\$${amount.toStringAsFixed(2)}',
                 style: TextStyle(
-                    color: Colors.green,
+                    color: Theme.of(context).primaryColor,
                     fontWeight: FontWeight.bold,
                     fontSize: 19),
               )),

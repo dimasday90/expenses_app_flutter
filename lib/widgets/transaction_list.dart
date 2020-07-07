@@ -12,14 +12,20 @@ class TransactionList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 8.9),
-      child: Column(
-        children: transactions.map((tx) {
+      height: 308,
+      padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 9.8),
+      decoration: BoxDecoration(
+          border: Border.all(
+              color: Theme.of(context).primaryColorDark, width: 2.1)),
+      child: ListView.builder(
+        itemCount: transactions.length,
+        itemBuilder: (ctx, index) {
           return TransactionCard(
-            title: tx.title,
-            amount: tx.amount,
-            date: tx.date,
-          ); //* from './txCard.dart'
-        }).toList(),
+            title: transactions[index].title,
+            amount: transactions[index].amount,
+            date: transactions[index].date,
+          );
+        },
       ),
     );
   }

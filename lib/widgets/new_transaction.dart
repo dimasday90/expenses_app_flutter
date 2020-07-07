@@ -1,8 +1,31 @@
 import 'package:flutter/material.dart';
 
-class NewTransaction extends StatelessWidget {
+class NewTransaction extends StatefulWidget {
+  final Function addTransactionHandler;
+
+  NewTransaction({this.addTransactionHandler});
+
+  @override
+  _NewTransactionState createState() => _NewTransactionState();
+}
+
+class _NewTransactionState extends State<NewTransaction> {
   final titleController = TextEditingController();
+
   final amountController = TextEditingController();
+
+  void submitNewTransaction() {
+    final enteredTitle = titleController.text;
+    final enteredAmount = double.parse(amountController.text);
+
+    if (enteredTitle.isEmpty || enteredAmount <= 0) {
+      return;
+    }
+
+    widget.addTransactionHandler(enteredTitle, enteredAmount);
+
+    Navigator.of(context).pop();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -11,7 +34,6 @@ class NewTransaction extends StatelessWidget {
         child: Container(
           padding: EdgeInsets.all(7.5),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: <Widget>[
               TextField(
@@ -19,8 +41,11 @@ class NewTransaction extends StatelessWidget {
                 controller: titleController,
               ),
               TextField(
-                  decoration: InputDecoration(labelText: 'Amount'),
-                  controller: amountController),
+                decoration: InputDecoration(labelText: 'Amount'),
+                controller: amountController,
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                onSubmitted: (_) => submitNewTransaction(),
+              ),
               FlatButton(
                 child: Text(
                   'Add Transaction',
@@ -29,9 +54,7 @@ class NewTransaction extends StatelessWidget {
                       fontSize: 16,
                       fontWeight: FontWeight.bold),
                 ),
-                onPressed: () {
-                  print(titleController.text);
-                },
+                onPressed: submitNewTransaction,
               )
             ],
           ),
