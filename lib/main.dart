@@ -14,7 +14,21 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Expenses App',
       theme: ThemeData(
-          primarySwatch: Colors.green, accentColor: Colors.greenAccent),
+        primarySwatch: Colors.green,
+        accentColor: Colors.green[700],
+        errorColor: Colors.red,
+        fontFamily: 'Quicksand',
+        appBarTheme: AppBarTheme(
+          textTheme: ThemeData.light().textTheme.copyWith(
+                headline6: TextStyle(
+                  fontFamily: 'OpenSans',
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                ),
+                button: TextStyle(color: Colors.white),
+              ),
+        ),
+      ),
       home: MyHomePage(),
     );
   }
@@ -26,21 +40,27 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final List<Transaction> _transactions = [
-    Transaction(id: 1, title: 'New Shoe', amount: 42.22, date: DateTime.now()),
-    Transaction(id: 2, title: 'New Jacket', amount: 65.14, date: DateTime.now())
-  ];
+  final List<Transaction> _transactions = [];
 
-  var idCounter = 2;
+  var _idCounter = 1;
 
-  void _addNewTransaction(String txTitle, double txAmount) {
+  List<Transaction> get _recentTransactions {
+    return _transactions.where((tx) {
+      return tx.date.isAfter(DateTime.now().subtract(Duration(days: 7)));
+    }).toList();
+  }
+
+  void _addNewTransaction(
+      String txTitle, double txAmount, DateTime selectedDate) {
     final newTx = Transaction(
-        id: idCounter + 1,
-        title: txTitle,
-        amount: txAmount,
-        date: DateTime.now());
+      id: _idCounter,
+      title: txTitle,
+      amount: txAmount,
+      date: selectedDate,
+    );
 
     setState(() {
+      _idCounter += 1;
       _transactions.add(newTx);
     });
   }
@@ -53,12 +73,19 @@ class _MyHomePageState extends State<MyHomePage> {
             onTap: null,
             behavior: HitTestBehavior.opaque,
             child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 10.1),
               child: NewTransaction(
                 addTransactionHandler: _addNewTransaction,
               ),
             ),
           );
         });
+  }
+
+  void _deleteTransaction(int id) {
+    setState(() {
+      _transactions.removeWhere((transaction) => transaction.id == id);
+    });
   }
 
   @override
@@ -73,9 +100,12 @@ class _MyHomePageState extends State<MyHomePage> {
             margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 23.2),
             child: Column(
               children: <Widget>[
-                Chart(), //*from './widgets/chart.dart'
+                Chart(
+                  recentTransactions: _recentTransactions,
+                ), //*from './widgets/chart.dart'
                 TransactionList(
                   transactions: _transactions,
+                  deleteTransaction: _deleteTransaction,
                 ), //*from './widgets/transaction_list.dart'
               ],
             ),
