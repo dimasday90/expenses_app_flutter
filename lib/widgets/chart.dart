@@ -37,42 +37,67 @@ class Chart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.all(5.0),
-      child: Card(
-        elevation: 6,
-        child: Padding(
-          padding: EdgeInsets.all(10.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: <Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: groupedTransactionValues.map((tx) {
-                  return Flexible(
-                    fit: FlexFit.tight,
-                    child: ChartBar(
-                      label: tx['day'],
-                      spendingAmount: tx['amount'],
-                      spendingPctOfTotal:
-                          (tx['amount'] as double) / totalSpending,
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Padding(
+          padding: EdgeInsets.all(5.0),
+          child: Card(
+            elevation: 6,
+            child: Padding(
+              padding: EdgeInsets.all(10.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: <Widget>[
+                  if (isLandscape)
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: groupedTransactionValues.map((tx) {
+                        return Container(
+                          width: constraints.maxWidth,
+                          child: ChartBar(
+                            label: tx['day'],
+                            spendingAmount: tx['amount'],
+                            spendingPctOfTotal:
+                                (tx['amount'] as double) / totalSpending,
+                          ),
+                        );
+                      }).toList(),
                     ),
-                  );
-                }).toList(),
+                  if (!isLandscape)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: groupedTransactionValues.map((tx) {
+                        return Container(
+                          height: constraints.maxHeight * 0.7,
+                          child: ChartBar(
+                            label: tx['day'],
+                            spendingAmount: tx['amount'],
+                            spendingPctOfTotal:
+                                (tx['amount'] as double) / totalSpending,
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  SizedBox(
+                    height: constraints.maxHeight * 0.01,
+                  ),
+                  FittedBox(
+                    child: Text(
+                      'Last Week Chart',
+                      style: TextStyle(
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              SizedBox(
-                height: 5,
-              ),
-              Text(
-                'Last Week Chart',
-                style: TextStyle(
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

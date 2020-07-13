@@ -1,11 +1,23 @@
+import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import './models/transaction.dart';
 import './widgets/transaction_list.dart';
 import './widgets/chart.dart';
 import './widgets/new_transaction.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  WidgetsFlutterBinding();
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
+  ]);
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override
@@ -66,6 +78,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _newTransactionModalShow(BuildContext ctx) {
     showModalBottomSheet(
+        isScrollControlled: true,
         context: ctx,
         builder: (_) {
           return GestureDetector(
@@ -89,55 +102,110 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final appBar = AppBar(title: Text('Expenses App'));
-    return SafeArea(
-      child: Scaffold(
-        appBar: appBar,
-        body: SingleChildScrollView(
-          child: Container(
-            margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 23.2),
-            child: Column(
+    final mediaQuery = MediaQuery.of(context);
+    final mainTheme = Theme.of(context);
+    final isLandscape = mediaQuery.orientation == Orientation.landscape;
+    final PreferredSizeWidget appBar = Platform.isIOS
+        ? CupertinoNavigationBar(
+            middle: Text('Expenses App'),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                Container(
-                  height: (MediaQuery.of(context).size.height -
-                          appBar.preferredSize.height -
-                          MediaQuery.of(context).padding.top) *
-                      0.3,
-                  child: Chart(
-                    recentTransactions: _recentTransactions,
-                  ),
-                ), //*from '../widgets/chart.dart'
-                Container(
-                  margin: EdgeInsets.symmetric(vertical: 8.9),
-                  width: double.infinity,
-                  padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 9.8),
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Theme.of(context).primaryColorDark,
-                      width: 1.5,
-                    ),
-                  ),
-                  height: (MediaQuery.of(context).size.height -
-                          appBar.preferredSize.height) *
-                      0.5,
-                  child: TransactionList(
-                    transactions: _transactions,
-                    deleteTransaction: _deleteTransaction,
-                  ),
-                ), //*from '../widgets/transaction_list.dart'
+                GestureDetector(
+                    onTap: () => _newTransactionModalShow(context),
+                    child: Icon(CupertinoIcons.add))
               ],
             ),
-          ),
-        ),
-        floatingActionButton: FloatingActionButton.extended(
-          label: Text('Add Transaction'),
-          icon: Icon(Icons.add),
-          onPressed: () => _newTransactionModalShow(context),
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(17.0))),
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+          )
+        : AppBar(
+            title: Text('Expenses App'),
+          );
+    final chartWidget = Chart(
+      recentTransactions: _recentTransactions,
+    ); //*from '../widgets/chart.dart'
+    final transactionListWidget = TransactionList(
+      transactions: _transactions,
+      deleteTransaction: _deleteTransaction,
+    ); //*from '../widgets/transaction_list.dart'
+    final transactionListDecoration = BoxDecoration(
+      border: Border.all(
+        color: mainTheme.primaryColorDark,
+        width: 1.5,
       ),
     );
+    final pageBody = SafeArea(
+      child: SingleChildScrollView(
+        child: Container(
+          margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 23.2),
+          child: isLandscape
+              ? Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: Container(
+                        height: (mediaQuery.size.height -
+                                appBar.preferredSize.height -
+                                mediaQuery.padding.top) *
+                            0.76,
+                        child: chartWidget,
+                      ),
+                    ),
+                    Expanded(
+                      child: Container(
+                        height: (mediaQuery.size.height -
+                                appBar.preferredSize.height -
+                                mediaQuery.padding.top) *
+                            0.76,
+                        decoration: transactionListDecoration,
+                        child: transactionListWidget,
+                      ),
+                    ),
+                  ],
+                )
+              : Column(
+                  children: <Widget>[
+                    Container(
+                      height: (mediaQuery.size.height -
+                              appBar.preferredSize.height -
+                              mediaQuery.padding.top) *
+                          0.33,
+                      child: chartWidget,
+                    ),
+                    Container(
+                      margin: EdgeInsets.symmetric(vertical: 8.9),
+                      width: double.infinity,
+                      padding:
+                          EdgeInsets.symmetric(vertical: 5.0, horizontal: 9.8),
+                      decoration: transactionListDecoration,
+                      height: (mediaQuery.size.height -
+                              appBar.preferredSize.height) *
+                          0.5,
+                      child: transactionListWidget,
+                    ),
+                  ],
+                ),
+        ),
+      ),
+    );
+
+    return Platform.isIOS
+        ? CupertinoPageScaffold(
+            child: pageBody,
+            navigationBar: appBar,
+          )
+        : Scaffold(
+            appBar: appBar,
+            body: pageBody,
+            floatingActionButton: Platform.isIOS
+                ? Container()
+                : FloatingActionButton.extended(
+                    label: Text('Add Transaction'),
+                    icon: Icon(Icons.add),
+                    onPressed: () => _newTransactionModalShow(context),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(17.0))),
+                  ),
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.centerFloat,
+          );
   }
 }
