@@ -4,6 +4,8 @@ A simple management of personal expenses, developed with Flutter + Dart
 
 ## App Preview
 
+There are 2 main layouts, chart and transactions list. The chart shows the last week's expenses. In transactions list, each shows nominal expenses, title, date, and delete features.
+
 - Portrait
 
     <img width="300" src="screenshots/flutter_05.png" alt="Landscape Looks">
@@ -11,15 +13,20 @@ A simple management of personal expenses, developed with Flutter + Dart
 - Landscape
 
     <img width="400" src="screenshots/flutter_06.png" alt="Landscape Looks">
-  ![Landscape Looks]("screenshots/flutter_06.png")
 
 - Create New Transaction
 
-  <img width="300" src="screenshots/flutter_02.png" alt="Landscape Looks">
+  - Input Title
 
-  <img width="300" src="screenshots/flutter_03.png" alt="Landscape Looks">
+    <img width="300" src="screenshots/flutter_02.png" alt="Input Title">
 
-  <img width="300" src="screenshots/flutter_04.png" alt="Landscape Looks">
+  - Input Amount (in US Dollar)
+
+    <img width="300" src="screenshots/flutter_03.png" alt="Input Amount">
+
+  - Input Date
+
+    <img width="300" src="screenshots/flutter_04.png" alt="Input Date">
 
 ## How to Try
 
