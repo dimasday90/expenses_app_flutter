@@ -103,7 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
   //# builder methods:
 
   //* build this widget when the gadget is lanscape oriented
-  Widget _landscapePage(
+  Widget _buildLandscapePage(
     MediaQueryData mediaQuery,
     AppBar appBar,
     Widget chartWidget,
@@ -136,7 +136,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   //* build this widget when the gadget is portrait oriented
-  Widget _portraitPage(
+  Widget _buildPortraitPage(
     MediaQueryData mediaQuery,
     AppBar appBar,
     Widget chartWidget,
@@ -166,7 +166,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   //* run this methods when the platform is iOS
 
-  Widget _cupertinoAppBar() {
+  Widget _buildCupertinoAppBar() {
     return CupertinoNavigationBar(
       middle: Text('Expenses App'),
       trailing: Row(
@@ -180,7 +180,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget _cupertinoScaffold(
+  Widget _buildCupertinoScaffold(
     ObstructingPreferredSizeWidget appBar,
     Widget pageBody,
   ) {
@@ -192,13 +192,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
   //* run this methods when the platform is Android
 
-  Widget _materialAppBar() {
+  Widget _buildMaterialAppBar() {
     return AppBar(
       title: Text('Expenses App'),
     );
   }
 
-  Widget _materialScaffold(AppBar appBar, Widget pageBody) {
+  Widget _buildMaterialScaffold(AppBar appBar, Widget pageBody) {
     return Scaffold(
       appBar: appBar,
       body: pageBody,
@@ -221,7 +221,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final mainTheme = Theme.of(context);
     final isLandscape = mediaQuery.orientation == Orientation.landscape;
     final PreferredSizeWidget appBar =
-        Platform.isIOS ? _cupertinoAppBar() : _materialAppBar();
+        Platform.isIOS ? _buildCupertinoAppBar() : _buildMaterialAppBar();
     final chartWidget = Chart(
       recentTransactions: _recentTransactions,
     ); //*from '../widgets/chart.dart'
@@ -240,14 +240,14 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Container(
           margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 23.2),
           child: isLandscape
-              ? _landscapePage(
+              ? _buildLandscapePage(
                   mediaQuery,
                   appBar,
                   chartWidget,
                   transactionListDecoration,
                   transactionListWidget,
                 )
-              : _portraitPage(
+              : _buildPortraitPage(
                   mediaQuery,
                   appBar,
                   chartWidget,
@@ -259,11 +259,11 @@ class _MyHomePageState extends State<MyHomePage> {
     );
 
     return Platform.isIOS
-        ? _cupertinoScaffold(
+        ? _buildCupertinoScaffold(
             appBar,
             pageBody,
           )
-        : _materialScaffold(
+        : _buildMaterialScaffold(
             appBar,
             pageBody,
           );
