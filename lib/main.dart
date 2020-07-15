@@ -100,26 +100,128 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  //# builder methods:
+
+  //* build this widget when the gadget is lanscape oriented
+  Widget _landscapePage(
+    MediaQueryData mediaQuery,
+    AppBar appBar,
+    Widget chartWidget,
+    BoxDecoration transactionListDecoration,
+    Widget transactionListWidget,
+  ) {
+    return Row(
+      children: <Widget>[
+        Expanded(
+          child: Container(
+            height: (mediaQuery.size.height -
+                    appBar.preferredSize.height -
+                    mediaQuery.padding.top) *
+                0.76,
+            child: chartWidget,
+          ),
+        ),
+        Expanded(
+          child: Container(
+            height: (mediaQuery.size.height -
+                    appBar.preferredSize.height -
+                    mediaQuery.padding.top) *
+                0.76,
+            decoration: transactionListDecoration,
+            child: transactionListWidget,
+          ),
+        ),
+      ],
+    );
+  }
+
+  //* build this widget when the gadget is portrait oriented
+  Widget _portraitPage(
+    MediaQueryData mediaQuery,
+    AppBar appBar,
+    Widget chartWidget,
+    BoxDecoration transactionListDecoration,
+    Widget transactionListWidget,
+  ) {
+    return Column(
+      children: <Widget>[
+        Container(
+          height: (mediaQuery.size.height -
+                  appBar.preferredSize.height -
+                  mediaQuery.padding.top) *
+              0.33,
+          child: chartWidget,
+        ),
+        Container(
+          margin: EdgeInsets.symmetric(vertical: 8.9),
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 9.8),
+          decoration: transactionListDecoration,
+          height: (mediaQuery.size.height - appBar.preferredSize.height) * 0.5,
+          child: transactionListWidget,
+        ),
+      ],
+    );
+  }
+
+  //* run this methods when the platform is iOS
+
+  Widget _cupertinoAppBar() {
+    return CupertinoNavigationBar(
+      middle: Text('Expenses App'),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          GestureDetector(
+              onTap: () => _newTransactionModalShow(context),
+              child: Icon(CupertinoIcons.add))
+        ],
+      ),
+    );
+  }
+
+  Widget _cupertinoScaffold(
+    ObstructingPreferredSizeWidget appBar,
+    Widget pageBody,
+  ) {
+    return CupertinoPageScaffold(
+      navigationBar: appBar,
+      child: pageBody,
+    );
+  }
+
+  //* run this methods when the platform is Android
+
+  Widget _materialAppBar() {
+    return AppBar(
+      title: Text('Expenses App'),
+    );
+  }
+
+  Widget _materialScaffold(AppBar appBar, Widget pageBody) {
+    return Scaffold(
+      appBar: appBar,
+      body: pageBody,
+      floatingActionButton: Platform.isIOS
+          ? Container()
+          : FloatingActionButton.extended(
+              label: Text('Add Transaction'),
+              icon: Icon(Icons.add),
+              onPressed: () => _newTransactionModalShow(context),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(17.0))),
+            ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
     final mainTheme = Theme.of(context);
     final isLandscape = mediaQuery.orientation == Orientation.landscape;
-    final PreferredSizeWidget appBar = Platform.isIOS
-        ? CupertinoNavigationBar(
-            middle: Text('Expenses App'),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                GestureDetector(
-                    onTap: () => _newTransactionModalShow(context),
-                    child: Icon(CupertinoIcons.add))
-              ],
-            ),
-          )
-        : AppBar(
-            title: Text('Expenses App'),
-          );
+    final PreferredSizeWidget appBar =
+        Platform.isIOS ? _cupertinoAppBar() : _materialAppBar();
     final chartWidget = Chart(
       recentTransactions: _recentTransactions,
     ); //*from '../widgets/chart.dart'
@@ -138,74 +240,32 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Container(
           margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 23.2),
           child: isLandscape
-              ? Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: Container(
-                        height: (mediaQuery.size.height -
-                                appBar.preferredSize.height -
-                                mediaQuery.padding.top) *
-                            0.76,
-                        child: chartWidget,
-                      ),
-                    ),
-                    Expanded(
-                      child: Container(
-                        height: (mediaQuery.size.height -
-                                appBar.preferredSize.height -
-                                mediaQuery.padding.top) *
-                            0.76,
-                        decoration: transactionListDecoration,
-                        child: transactionListWidget,
-                      ),
-                    ),
-                  ],
+              ? _landscapePage(
+                  mediaQuery,
+                  appBar,
+                  chartWidget,
+                  transactionListDecoration,
+                  transactionListWidget,
                 )
-              : Column(
-                  children: <Widget>[
-                    Container(
-                      height: (mediaQuery.size.height -
-                              appBar.preferredSize.height -
-                              mediaQuery.padding.top) *
-                          0.33,
-                      child: chartWidget,
-                    ),
-                    Container(
-                      margin: EdgeInsets.symmetric(vertical: 8.9),
-                      width: double.infinity,
-                      padding:
-                          EdgeInsets.symmetric(vertical: 5.0, horizontal: 9.8),
-                      decoration: transactionListDecoration,
-                      height: (mediaQuery.size.height -
-                              appBar.preferredSize.height) *
-                          0.5,
-                      child: transactionListWidget,
-                    ),
-                  ],
+              : _portraitPage(
+                  mediaQuery,
+                  appBar,
+                  chartWidget,
+                  transactionListDecoration,
+                  transactionListWidget,
                 ),
         ),
       ),
     );
 
     return Platform.isIOS
-        ? CupertinoPageScaffold(
-            child: pageBody,
-            navigationBar: appBar,
+        ? _cupertinoScaffold(
+            appBar,
+            pageBody,
           )
-        : Scaffold(
-            appBar: appBar,
-            body: pageBody,
-            floatingActionButton: Platform.isIOS
-                ? Container()
-                : FloatingActionButton.extended(
-                    label: Text('Add Transaction'),
-                    icon: Icon(Icons.add),
-                    onPressed: () => _newTransactionModalShow(context),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(17.0))),
-                  ),
-            floatingActionButtonLocation:
-                FloatingActionButtonLocation.centerFloat,
+        : _materialScaffold(
+            appBar,
+            pageBody,
           );
   }
 }
